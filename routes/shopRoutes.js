@@ -2,7 +2,7 @@ const express = require('express');
 const {
     getIndex, getProducts, getProduct,
     getCart, postCart, postDeleteFromCart,
-    getOrders, getCheckout
+    postOrder, getOrders, getCheckout
 } = require('../controllers/shopController.js'); 
 
 const router = express.Router();
@@ -19,15 +19,17 @@ router.get('/products/:pid',getProduct);
 
 // {*/ CART /*}
 //--> Fetch Cart Items
-// router.get('/cart', getCart);
+router.get('/cart', getCart);
 //--> Add Cart Items
 router.post('/cart', postCart);
 //--> Delete Items from Cart
-// router.post('/cart', postDeleteFromCart);
+router.post('/cart-delete-item', postDeleteFromCart);
 
 // {*/ ORDER /*}
+//--> Post an Order
+router.post('/create-order', postOrder );
 //--> Get Order Details
-// router.get('/orders', getOrders );
+router.get('/orders', getOrders );
 //--> Proceed To Checkout
 // router.get('/checkout',getCheckout);
 

@@ -1,13 +1,32 @@
 const Product = require('../models/Product.js');
 
 
+//--> Fetch All Products for the Admin
+//--> GET/admin/products
+//--> private/admin
+exports.getProducts = (req,res,next)=>{
+    Product.find().populate('userID','name -_id')
+        .then(products=>{
+            console.log(products);
+            res.render('admin/products-list',{
+                products : products,
+                pageTitle:'Admin Products',
+                path:'/admin/products',
+                isAuthenticated: req.session.isLoggedIn
+            });
+        })
+        .catch(err=>console.log(err));
+}
+
 //--> Add a New Product
 //--> GET/admin/add-product
 //--> private/admin
 exports.getAddProduct = (req,res,next)=>{
     res.render('admin/edit-product',{
         pageTitle: 'Add Product',
-        path:'/admin/add-product'
+        path:'/admin/add-product',
+        editing:false,
+        isAuthenticated: req.session.isLoggedIn
     });
 };
 
@@ -21,7 +40,13 @@ exports.postAddProduct = (req,res,next)=>{
     const price = req.body.price;
     const description = req.body.description;
     
-    const product = new Product (title, price,imgURL,description,null, req.user._id);
+    const product = new Product ({
+        title,
+        imgURL,
+        price,
+        description,
+        userID:req.session.user
+    });
 
     product.save()
      .then(result=> {
@@ -55,7 +80,8 @@ exports.getEditProduct = (req,res,next)=>{
                     product: product,
                     pageTitle: 'Edit Product',
                     path:'/admin/edit-product',
-                    editing: editMode
+                    editing: editMode,
+                    isAuthenticated: req.session.isLoggedIn
                 });    
             }
         })
@@ -73,37 +99,22 @@ exports.postEditProduct = (req,res,next)=>{
     const updatedPrice = req.body.price;
     const updatedDescription = req.body.description;
 
-    const updatedProduct = new Product(
-        updatedTitle, 
-        updatedImgURL, 
-        updatedPrice, 
-        updatedDescription, 
-        productID
-    );
 
-    updatedProduct.save()
-        .then(result=>{
-            console.log('ONE PRODUCT UPDATED !');
-            res.redirect('/admin/products');
-        })
-        .catch(err=>console.log(err));
+    Product.findById(productID).then(product=>{
+        product.title = updatedTitle;
+        product.imgURL = updatedImgURL;
+        product.price = updatedPrice;
+        product.description = updatedDescription;
+
+        return product.save();
+    })
+    .then(result=>{
+        console.log('ONE PRODUCT UPDATED !');
+        res.redirect('/admin/products');
+    })
+    .catch(err=>console.log(err));
 }
 
-
-//--> Fetch All Products for the Admin
-//--> GET/admin/products
-//--> private/admin
-exports.getProducts = (req,res,next)=>{
-    Product.fetchAll()
-        .then(products=>{
-            res.render('admin/products-list',{
-                products : products,
-                pageTitle:'Admin Products',
-                path:'/admin/products'
-            });
-        })
-        .catch(err=>console.log(err));
-}
 
 
 //--> Delete a Product
@@ -111,7 +122,7 @@ exports.getProducts = (req,res,next)=>{
 //--> private/admin
 exports.deleteProduct =(req,res,next)=>{
     const productID = req.body.productID;
-    Product.deleteById(productID)
+    Product.findById(productID).remove()
         .then(()=>{
             console.log('Deleted!');
             res.redirect('/admin/products')

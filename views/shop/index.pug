@@ -19,6 +19,6 @@ block content
                         .card__actions
                             form(action="/cart", method="POST")
                                 button(type="submit", class="btn") Add To Cart
-                                input(type="hidden", name="productID", value="/#{product._id}")
+                                input(type="hidden", name="productID", value=product._id)
         else
             h1 No Products

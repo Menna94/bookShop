@@ -1,5 +1,17 @@
 extends ../layouts/main.pug
+block styles
+    link(rel="stylesheet", href="/css/orders.css")
 
+    
 block content
     main
-        h1 ORDERS
+        if orders.length <= 0
+            h1 No Orders Available To Show
+        else
+            ul.orders
+                each order in orders
+                    li.orders__item
+                        h1 Order - #{order.user.name}
+                    ul.orders__products
+                        each product in order.products
+                            li.orders__products-item #{product.product.title} (#{product.quantity})

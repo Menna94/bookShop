@@ -1,69 +1,68 @@
-const getDB = require('../util/mongodb').getDB;
-const mongodb = require('mongodb');
-const ObjectId = mongodb.ObjectId;
+const mongoose = require('mongoose');
 
-
-class User {
-    constructor(name,email,cart,id){
-        this.name = name;
-        this.email = email;
-        this.cart = cart; //{items:[]}
-        this._id = id;
-    }
-
-    //Add a New User
-    save(){
-        const db = getDB();
-        return db.collection('users').insertOne(this);
-    }
-
-    //Add a Product to Cart
-    addToCart(product){
-        /*
-            => CART DESIGN =>
+const userSchema = new mongoose.Schema({
+    name :{
+        type: String,
+        required: true
+    },
+    email:{
+        type: String,
+        required: true
+    },
+    cart:{
+        items: [
             {
-                productID: _id of the product loaded on the cart,
-                qty: quantity of this item added,
+                productID :{
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Product',
+                    required: true
+                },
+                qty: {
+                    type: Number,
+                    required: true
+                }
             }
-        */
-        const db = getDB();
+        ]
+    }
+})
+userSchema.methods.addToCart  = function(product){
+    const cartProductIdx = this.cart.items.findIndex(cartItem=>{
+        return cartItem.productID.toString() === product._id.toString();
+    });
 
-        //Detecting the Index of Every Item in the Cart
-        const cartProductIdx = this.cart.items.findIndex(cartItem=>{
-            return cartItem.productID == product._id
-        });
+    let newQty = 1;
+    const updatedCartItems = [...this.cart.items];
 
-        let newQty =1;
-        //New Cart 
-        const updatedCartItems = [...this.cart.items];
-
-        if(cartProductIdx >= 0){ //if the cart has the same item already
-            //increase the quantity
-            newQty = this.cart.items[cartProductIdx].qty +1;
-            updatedCartItems[cartProductIdx].qty = newQty;
-        }else{ 
-            //add this item as a new one in the cart
-            updatedCartItems.push({productID: new ObjectId(product._id), qty:newQty})
-        }
-
-        const updatedCart = {items: updatedCartItems};
-
-        return db.collection('users').updateOne(
-            {_id: new ObjectId(this._id)},
-            { $set: {cart: updatedCart}}
-        );
+    if(cartProductIdx >= 0){
+        newQty = this.cart.items[cartProductIdx].qty + 1;
+        updatedCartItems[cartProductIdx].qty = newQty;
+    } else {
+        updatedCartItems.push({
+            productID: product._id,
+            qty: newQty
+        })
     }
 
-    //Fetch a User
-    static findById(uid){
-        const db = getDB();
-        return db.collection('users')
-            .findOne({_id: new ObjectId(uid)})
-            .then(user=>{
-                console.log(user);
-                return user;
-            })
-            .catch(err=>console.log(err));
-    }
+    const updatedCart = {
+        items : updatedCartItems
+    };
+
+    this.cart = updatedCart;
+    
+    return this.save();
+};
+
+userSchema.methods.removeFromCart = function(pid){
+    const updatedCartItems = this.cart.itmes.filter(item =>{
+        return item.productID.toString() !== pid.toString();
+    });
+    this.cart.itmes = updatedCartItems;
+    return this.save();
 }
-module.exports = User;
+
+userSchema.methods.clearCart = function(){
+    this.cart = {items: []};
+
+    return this.save();
+}
+module.exports = mongoose.model('User', userSchema);
