@@ -8,15 +8,17 @@ block content
     main
         if errorMsg
             .user_msg.user_msg__error #{errorMsg}
-        form.login-form(action="/login", method="POST")
+        form.login-form(action="/signup", method="POST")
             .form-control
                 label(for="email") Email
                 input(type="email", name="email")#email
 
                 label(for="pw") Password
                 input(type="password", name="pw")#pw
-                div: small Forget your Password? <a href='/reset'>reset password</a>
+                
+                label(for="cpw") Confirm Password
+                input(type="password", name="cpw")#cpw
 
                 input(type="hidden", name="_csrf", value=csrfToken)
-                
-                button.btn.btn-danger(type="submit") Login 
+
+                button.btn(type="submit") Signup 

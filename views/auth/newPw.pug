@@ -8,15 +8,13 @@ block content
     main
         if errorMsg
             .user_msg.user_msg__error #{errorMsg}
-        form.login-form(action="/login", method="POST")
+        form.login-form(action="/update-password", method="POST")
             .form-control
-                label(for="email") Email
-                input(type="email", name="email")#email
-
-                label(for="pw") Password
+                label(for="pw") Update Password
                 input(type="password", name="pw")#pw
-                div: small Forget your Password? <a href='/reset'>reset password</a>
 
+                input(type="hidden", name="userID", value=userID)
+                input(type="hidden", name="passwordToken", value=passwordToken)
                 input(type="hidden", name="_csrf", value=csrfToken)
                 
                 button.btn.btn-danger(type="submit") Login 

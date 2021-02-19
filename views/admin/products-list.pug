@@ -12,13 +12,14 @@ block content
                         header.card__header
                             h1.product__title #{product.title}
                         div.card__image
-                            img(src= '/#{product.imgURL}', alt="A Book")
+                            img(src=product.imgURL, alt="A Book")
                         div.card__content
                             h2.product__price $#{product.price}
                             p.product__description #{product.description}
                         .card__actions
                             a(href='/admin/edit-product/'+product._id+"?edit=true").btn Edit
                             form(action="/admin/delete-product" method="POST")
+                                input(type="hidden", name="_csrf", value=csrfToken)
                                 input(type="hidden", name="productID", value=product._id)
                                 button(type="submit").btn Delete
                             

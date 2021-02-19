@@ -21,6 +21,13 @@ const get404 = require('./controllers/errorController.js');
 //Models
 const User = require('./models/User');
 
+// CSRF
+const csrf = require('csurf'),
+csrfProtection = csrf();
+
+//flash
+const flash = require('connect-flash');
+
 //mongoDBStore
 const mongoDBStore = require('connect-mongodb-session')(session),
 store = mongoDBStore({
@@ -29,10 +36,35 @@ store = mongoDBStore({
 
 });
 
+
 //--> App Configs
 app.use(parser.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname , 'public')));
 app.use(session({ secret: 'my secret', resave: false, saveUninitialized:false, store: store }));
+app.use(csrfProtection);
+app.use(flash());
+
+
+//--> User
+app.use((req,res,next)=>{
+    if(! req.session.user){
+        return next();
+    }
+    User.findById(req.session.user._id)
+    .then(user=>{
+        req.user = user;
+        next();
+    })
+    .catch(err=>console.log(err));
+})
+
+
+//-->
+app.use((req,res,next)=>{
+    res.locals.isAuthenticated = req.session.isLoggedIn;
+    res.locals.csrfToken = req.csrfToken();
+    next();
+});
 
 //--> View
 app.set('view engine', 'pug');
@@ -52,20 +84,7 @@ app.use(get404);
 
 //MONGOOSE
 mongoose.connect(MONGODB_URI)
-.then(result=>{
-    User.findOne().then(user=>{
-        if(!user){
-            const user = new User({
-                name: 'Max',
-                email: 'max@max.com',
-                cart:{
-                    items: []
-                }
-            });
-            user.save();
-        }
-    })
-   
+.then(result=>{   
     console.log('<-------------------> D B   C O N N E C T E D ! <------------------->');
     app.listen(8080);
 

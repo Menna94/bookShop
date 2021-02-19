@@ -12,14 +12,16 @@ block content
                         header.card__header
                             h1.product__title #{product.title}
                         div.card__image
-                            img(src= '/#{product.imgURL}', alt="A Book")
+                            img(src=product.imgURL, alt="A Book")
                         div.card__content
                             h2.product__price $#{product.price}
                             p.product__description #{product.description}
                         .card__actions
                             a.btn(href='/products/'+ product._id) Details
                             form(action="/cart", method="POST")
-                                button(type="submit", class="btn") Add To Cart
+                                if(isAuthenticated)
+                                    input(type="hidden", name="_csrf", value=csrfToken)
+                                    button(type="submit", class="btn") Add To Cart
                                 input(type="hidden", name="productID", value=product._id)
         else
             h1 No Products

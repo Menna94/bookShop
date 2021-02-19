@@ -19,6 +19,8 @@ block content
 
                 label(for="description") Description
                 input(type="textarea", name="description", value=editing?product.description:'')#description
+                
+                input(type="hidden", name="_csrf", value=csrfToken)
 
                 if(editing)
                     input(type="hidden", name="productID", value=product._id)
