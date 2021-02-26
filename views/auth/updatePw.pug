@@ -10,11 +10,11 @@ block content
             .user_msg.user_msg__error #{errorMsg}
         form.login-form(action="/update-password", method="POST")
             .form-control
-                label(for="pw") Update Password
+                label(for="pw") Password
                 input(type="password", name="pw")#pw
 
                 input(type="hidden", name="userID", value=userID)
                 input(type="hidden", name="passwordToken", value=passwordToken)
                 input(type="hidden", name="_csrf", value=csrfToken)
                 
-                button.btn.btn-danger(type="submit") Login 
+                button.btn.btn-danger(type="submit") Update Password

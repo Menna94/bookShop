@@ -6,7 +6,7 @@ block content
             h1 #{product.title}
         hr
         .image
-            image(src=product.img, alt=product.title)
+            image(src=product.imgURL, alt=product.title)
         h2 $#{product.price}
         p #{product.description}
         form(action="/cart", method="POST")

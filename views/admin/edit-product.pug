@@ -6,19 +6,46 @@ block styles
 
 block content
     main
-        form.product-form(action=editing?"/admin/edit-product":"/admin/add-product", method="POST")
+        if errorMsg
+            .user_msg.user_msg__error #{errorMsg}
+        form.product-form(action=editing?"/admin/edit-product":"/admin/add-product", method="POST", novalidate, enctype="multipart/form-data")
             .form-control
                 label(for="title") Title
-                input(type="text", name="title", value=editing?product.title:'')#title
+                input(
+                    type="text",
+                    name="title", 
+                    value=editing || hasError ? product.title:'',
+                    class=validationErrors.find(err=>err.param === 'title')? 'invalid' : ''
+                    )#title
 
                 label(for="img") Image URL
-                input(type="text", name="imgURL", value=editing?product.imgURL:'')#img
+                input(
+                    type="text", 
+                    name="img", 
+                    value=editing || hasError ? product.imgURL:'',
+                    class=validationErrors.find(err=>err.param === 'img')? 'invalid' : ''
+                    )#img
+                //- input(
+                //-     type="file", 
+                //-     name="img",
+                //-     )#img
 
                 label(for="price") Price
-                input(type="number", name="price", step="0.01", value=editing?product.price:'')#price
+                input(
+                    type="number", 
+                    name="price", 
+                    step="0.01", 
+                    value=editing || hasError ? product.price:'',
+                    class=validationErrors.find(err=>err.param === 'price')? 'invalid' : ''
+                    )#price
 
                 label(for="description") Description
-                input(type="textarea", name="description", value=editing?product.description:'')#description
+                textarea(
+                    type="textarea", 
+                    name="description", 
+                    value=editing || hasError ? product.description :'',
+                    class=validationErrors.find(err=>err.param === 'description')? 'invalid' : ''
+                    )#description
                 
                 input(type="hidden", name="_csrf", value=csrfToken)
 

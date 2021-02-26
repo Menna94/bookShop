@@ -11,10 +11,10 @@ block content
         form.login-form(action="/login", method="POST")
             .form-control
                 label(for="email") Email
-                input(type="email", name="email")#email
+                input(type="email", name="email", valuse=oldInput.email , class=validationErrors.find(err=>err.param === 'email')? 'invalid' : '')#email
 
                 label(for="pw") Password
-                input(type="password", name="pw")#pw
+                input(type="password", name="pw",valuse=oldInput.pw , class=validationErrors.find(err=>err.param === 'pw')? 'invalid' : '')#pw
                 div: small Forget your Password? <a href='/reset'>reset password</a>
 
                 input(type="hidden", name="_csrf", value=csrfToken)
